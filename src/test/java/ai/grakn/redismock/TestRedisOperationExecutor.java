@@ -380,4 +380,13 @@ public class TestRedisOperationExecutor {
         assertCommandOK(array("set", "a", "v"));
         assertCommandError(array("rpush", "a", "1"));
     }
+
+    @Test
+    public void testSismember() throws EOFException {
+        assertCommandEquals(0, array("sismember", "settest", "nonexistent"));
+        assertCommandEquals(1, array("sadd", "settest", "existent"));
+        assertCommandEquals(1, array("sismember", "settest", "existent"));
+        //when the set not exists as a key
+        assertCommandEquals(0, array("sismember", "nonexistentset", "something"));
+    }
 }
