@@ -129,6 +129,8 @@ public class RedisOperationExecutor {
                 return new RO_sadd(base, params);
             case "sismember":
                 return new RO_sismember(base, params);
+            case "scard":
+                return new RO_scard(base, params);
             case "smembers":
                 return new RO_smembers(base, params);
             case "spop":

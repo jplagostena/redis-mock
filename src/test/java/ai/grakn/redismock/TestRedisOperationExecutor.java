@@ -389,4 +389,19 @@ public class TestRedisOperationExecutor {
         //when the set not exists as a key
         assertCommandEquals(0, array("sismember", "nonexistentset", "something"));
     }
+
+    @Test
+    public void testScard() throws EOFException {
+        //the key doesn't exist yet, so it should return 0
+        assertCommandEquals(0, array("scard", "settest"));
+        assertCommandEquals(1, array("sadd", "settest", "element1"));
+
+        assertCommandEquals(1, array("scard", "settest"));
+        //sadd command is returning the current size of the set and this is a bug.
+        //sadd should return the amount of members added in the operation
+        //https://github.com/graknlabs/redis-mock/issues/20
+        assertCommandEquals(2, array("sadd", "settest", "element2"));
+
+        assertCommandEquals(2, array("scard", "settest"));
+    }
 }
