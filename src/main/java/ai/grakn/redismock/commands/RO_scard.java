@@ -23,11 +23,6 @@ public class RO_scard extends AbstractRedisOperation {
         Slice data = base().rawGet(key);
         Set<Slice> set;
 
-        //there is no set with key
-        if (data == null) {
-            return Response.integer(0);
-        }
-
         set = data != null ? deserializeObject(data) : Sets.newHashSet();
 
         return Response.integer(set.size());
