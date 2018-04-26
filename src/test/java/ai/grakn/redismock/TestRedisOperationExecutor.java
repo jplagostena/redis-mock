@@ -380,4 +380,17 @@ public class TestRedisOperationExecutor {
         assertCommandOK(array("set", "a", "v"));
         assertCommandError(array("rpush", "a", "1"));
     }
+
+    @Test
+    public void testSrem() throws EOFException {
+        //settest does not exsists, so it should return 0
+        assertCommandEquals(0, array("srem", "settest", "element1", "element2"));
+
+        assertCommandEquals(1, array("sadd", "settest", "element1"));
+        assertCommandEquals(1, array("srem", "settest", "element1"));
+        assertCommandEquals(3, array("sadd", "settest", "element1", "element2", "element3"));
+        //settest does not contains element4 so the actual number of removals is 2
+        assertCommandEquals(2, array("srem", "settest", "element1", "element2", "element4"));
+    }
+
 }

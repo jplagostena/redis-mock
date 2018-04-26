@@ -127,6 +127,8 @@ public class RedisOperationExecutor {
                 return new RO_keys(base, params);
             case "sadd":
                 return new RO_sadd(base, params);
+            case "srem":
+                return new RO_srem(base, params);
             case "smembers":
                 return new RO_smembers(base, params);
             case "spop":
