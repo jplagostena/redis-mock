@@ -25,6 +25,25 @@ public class Utils {
         }
     }
 
+    /**
+     *
+     * Converts the negative index to the same positive index which represents the same place in the list.
+     * The method checks also checks if the list size and index are appropiate
+     *
+     * @param index
+     * @param listSize
+     */
+    public static int convertToPositiveIndexIfNeeded(int index, int listSize) {
+        if ((index > 0 && index >= listSize)
+                || (index < 0 && Math.abs(index) > listSize)) {
+            throw new IndexOutOfBoundsException("Index is out of bounds");
+        }
+        if (index < 0) {
+            return index + listSize;
+        }
+        return index;
+    }
+
     public static void checkArgumentsNumberEquals(List<Slice> args, int expect) throws WrongNumberOfArgumentsException {
         if (args.size() != expect) {
             throw new WrongNumberOfArgumentsException();

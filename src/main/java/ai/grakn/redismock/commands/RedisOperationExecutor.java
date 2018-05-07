@@ -94,6 +94,8 @@ public class RedisOperationExecutor {
                 return new RO_lpushx(base, params);
             case "lrange":
                 return new RO_lrange(base, params);
+            case "ltrim":
+                return new RO_ltrim(base, params);
             case "llen":
                 return new RO_llen(base, params);
             case "lpop":

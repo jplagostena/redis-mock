@@ -310,6 +310,39 @@ public class TestRedisOperationExecutor {
     }
 
     @Test
+    public void testLTrim() throws EOFException {
+        //if key does not exist, it should return OK
+        assertCommandOK(array("ltrim", "notalist", "0", "1"));
+        //list pushed -> mylist = ["el1", "el2", "el3"]
+        assertCommandEquals(3, array("lpush", "mylist", "el3", "el2", "el1"));
+
+        //trims the el3 (it is not within 0-1 range)
+        assertCommandOK(array("ltrim", "mylist", "0", "1"));
+        assertEquals(array("el1", "el2"),
+                executor.execCommand(RedisCommandParser.parse(array("lrange", "mylist", "0", "-1"))).toString());
+
+        //start size bigger than list size
+        assertCommandOK(array("ltrim", "mylist", "6", "8"));
+        assertEquals(array(),
+                executor.execCommand(RedisCommandParser.parse(array("lrange", "mylist", "0", "-1"))).toString());
+
+        //list pushed -> mylist = ["el1", "el2", "el3"]
+        assertCommandEquals(3, array("lpush", "mylist", "el3", "el2", "el1"));
+        //should trim "el1" and "el2" (2 is the last element and 10, the end index, turns to 2 also)
+        assertCommandOK(array("ltrim", "mylist", "2", "10"));
+        assertEquals(array("el3"),
+                executor.execCommand(RedisCommandParser.parse(array("lrange", "mylist", "0", "-1"))).toString());
+
+        assertCommandEquals(4, array("lpush", "mylist", "el3", "el2", "el1"));
+
+        //start index > end index => trim all elements
+        assertCommandOK(array("ltrim", "mylist", "2", "1"));
+        assertEquals(array(),
+                executor.execCommand(RedisCommandParser.parse(array("lrange", "mylist", "0", "-1"))).toString());
+    }
+
+
+    @Test
     public void testLrange() throws ParseErrorException, EOFException {
         assertEquals(array(),
                 executor.execCommand(RedisCommandParser.parse(array("lrange", "mylist", "0", "-1"))).toString());

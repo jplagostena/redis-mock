@@ -2,6 +2,7 @@ package ai.grakn.redismock;
 
 import ai.grakn.redismock.exception.WrongNumberOfArgumentsException;
 import com.google.common.collect.Lists;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -81,4 +82,26 @@ public class TestUtils {
         Slice b = Utils.deserializeObject(Utils.serializeObject(a));
         assertArrayEquals(a.data(), b.data());
     }
+
+    @Test
+    public void testConvertToPositiveIndexIfNeeded() {
+        Assert.assertEquals(1, Utils.convertToPositiveIndexIfNeeded(1 , 2));
+        Assert.assertEquals(1, Utils.convertToPositiveIndexIfNeeded(-1 , 2));
+        Assert.assertEquals(0, Utils.convertToPositiveIndexIfNeeded(-2 , 2));
+        Assert.assertEquals(3, Utils.convertToPositiveIndexIfNeeded(-3 , 6));
+        Assert.assertEquals(3, Utils.convertToPositiveIndexIfNeeded(3 , 6));
+        Assert.assertEquals(0, Utils.convertToPositiveIndexIfNeeded(0 , 1));
+        Assert.assertEquals(0, Utils.convertToPositiveIndexIfNeeded(-1 , 1));
+    }
+
+    @Test
+    public void testConvertToPositiveIndexOutOfBounds() {
+        try {
+            Utils.convertToPositiveIndexIfNeeded(2, 2);
+            Assert.fail();
+        } catch (IndexOutOfBoundsException ioobe) {}
+        Utils.convertToPositiveIndexIfNeeded(-2, 2);
+    }
+
+
 }
