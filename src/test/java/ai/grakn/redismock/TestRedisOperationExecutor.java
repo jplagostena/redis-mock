@@ -3,6 +3,7 @@ package ai.grakn.redismock;
 import ai.grakn.redismock.commands.RedisOperationExecutor;
 import ai.grakn.redismock.exception.EOFException;
 import ai.grakn.redismock.exception.ParseErrorException;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -52,6 +53,10 @@ public class TestRedisOperationExecutor {
 
     private void assertCommandError(String command) throws ParseErrorException, EOFException {
         assertEquals('-', executor.execCommand(RedisCommandParser.parse(command)).data()[0]);
+    }
+
+    private void assertEmptyListOrSet(String command) throws EOFException {
+        assertEquals(array(), executor.execCommand(RedisCommandParser.parse(command)).toString());
     }
 
     @Before
@@ -424,7 +429,7 @@ public class TestRedisOperationExecutor {
     }
 
     @Test
-    public void testScard() throws EOFException {
+    public void testSsismecard() throws EOFException {
         //the key doesn't exist yet, so it should return 0
         assertCommandEquals(0, array("scard", "settest"));
         assertCommandEquals(1, array("sadd", "settest", "element1"));
@@ -450,4 +455,23 @@ public class TestRedisOperationExecutor {
         assertCommandEquals(2, array("srem", "settest", "element1", "element2", "element4"));
     }
 
+
+    @Test
+    public void testSinter() throws Exception {
+        //does not exist, so it should be empty
+        assertEmptyListOrSet(array("sinter", "set1"));
+        //set1 = ("a", "b", "c")
+        assertCommandEquals(3, array("sadd", "set1", "a", "b", "c"));
+
+        assertEquals(array("a", "b", "c"),
+                executor.execCommand(RedisCommandParser.parse(array("sinter", "set1"))).toString());
+
+        //set2 = ("a", "d")
+        assertCommandEquals(2, array("sadd", "set2", "a", "d"));
+
+        assertEquals(array("a"),
+                executor.execCommand(RedisCommandParser.parse(array("sinter", "set1", "set2"))).toString());
+
+        assertEmptyListOrSet(array("sinter", "set1", "set3"));
+    }
 }

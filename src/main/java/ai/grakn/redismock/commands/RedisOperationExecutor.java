@@ -137,6 +137,8 @@ public class RedisOperationExecutor {
                 return new RO_srem(base, params);
             case "smembers":
                 return new RO_smembers(base, params);
+            case "sinter":
+                return new RO_sinter(base, params);
             case "spop":
                 return new RO_spop(base, params);
             case "hdel":
