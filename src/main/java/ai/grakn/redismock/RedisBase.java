@@ -4,7 +4,12 @@ import ai.grakn.redismock.commands.RedisType;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Collections;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
