@@ -6,7 +6,6 @@ import static ai.grakn.redismock.Utils.serializeObject;
 import ai.grakn.redismock.RedisBase;
 import ai.grakn.redismock.Slice;
 import ai.grakn.redismock.exception.InternalException;
-import redis.embedded.Redis;
 
 import java.util.HashMap;
 import java.util.List;
