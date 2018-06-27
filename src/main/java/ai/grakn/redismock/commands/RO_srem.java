@@ -33,7 +33,7 @@ public class RO_srem extends AbstractRedisOperation {
         }
 
         try {
-            base().rawPut(key, serializeObject(set), -1L);
+            base().rawPut(key, serializeObject(set), -1L, RedisType.SET);
         } catch (Exception e) {
             throw new InternalException(e.getMessage());
         }

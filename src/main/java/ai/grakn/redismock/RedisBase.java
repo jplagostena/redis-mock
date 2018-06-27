@@ -1,6 +1,8 @@
 package ai.grakn.redismock;
 
+import ai.grakn.redismock.commands.RedisType;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Sets;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,6 +20,7 @@ public class RedisBase {
     private final Map<Slice, Slice> base = new ConcurrentHashMap<>();
     private final Map<Slice, Long> deadlines = new ConcurrentHashMap<>();
     private final Set<RedisBase> syncBases = ConcurrentHashMap.newKeySet();
+    private final Map<RedisType, Set<Slice>> elementsByType = new ConcurrentHashMap<>();
 
     public RedisBase() {}
 
@@ -34,8 +37,7 @@ public class RedisBase {
 
         Long deadline = deadlines.get(key);
         if (deadline != null && deadline != -1 && deadline <= System.currentTimeMillis()) {
-            base.remove(key);
-            deadlines.remove(key);
+            this.removeElement(key);
             return null;
         }
         return base.get(key);
@@ -55,8 +57,7 @@ public class RedisBase {
         if (now < deadline) {
             return deadline - now;
         }
-        base.remove(key);
-        deadlines.remove(key);
+        this.removeElement(key);
         return null;
     }
 
@@ -91,13 +92,30 @@ public class RedisBase {
         subscribers.clear();
         deadlines.clear();
         syncBases.clear();
+        elementsByType.clear();
+    }
+
+    /**
+     * Tracks the element before the raw put.
+     * It is useful to track which type is each element
+     *
+     * @param key
+     * @param value
+     * @param ttl
+     * @param type
+     */
+    public void rawPut(Slice key, Slice value, Long ttl, RedisType type) {
+        this.trackElement(key, type);
+        this.rawPut(key, value, ttl);
     }
 
     public void rawPut(Slice key, Slice value, Long ttl) {
         Preconditions.checkNotNull(key);
         Preconditions.checkNotNull(value);
 
+
         base.put(key, value);
+
         if (ttl != null) {
             if (ttl != -1) {
                 deadlines.put(key, ttl + System.currentTimeMillis());
@@ -113,12 +131,17 @@ public class RedisBase {
     public void del(Slice key) {
         Preconditions.checkNotNull(key);
 
-        base.remove(key);
-        deadlines.remove(key);
+        this.removeElement(key);
 
         for (RedisBase base : syncBases) {
             base.del(key);
         }
+    }
+
+    private void removeElement(Slice key) {
+        this.unTrackElement(key);
+        base.remove(key);
+        deadlines.remove(key);
     }
 
     public void addSubscriber(Slice channel, RedisClient client){
@@ -155,5 +178,47 @@ public class RedisBase {
         });
 
         return subscriptions;
+    }
+
+    /**
+     * Tracks the creation or removal
+     * @param elementName
+     * @param type
+     */
+    public void trackElement(Slice elementName, RedisType type) {
+        if (elementsByType.isEmpty()) {
+            this.initializeElementTypeTracking();
+        }
+        Set<Slice> elementSet = elementsByType.get(type);
+        elementSet.add(elementName);
+    }
+
+    public void unTrackElement(Slice elementName) {
+        if (elementsByType.isEmpty()) {
+            this.initializeElementTypeTracking();
+        }
+        RedisType redisType = this.getElementType(elementName);
+        Set<Slice> elementSet = elementsByType.get(redisType);
+        if (elementSet != null) {
+            elementSet.remove(elementName);
+        }
+    }
+
+    public RedisType getElementType(Slice elementName) {
+        Set<RedisType> keys = elementsByType.keySet();
+        for (RedisType key: keys) {
+            if (this.elementsByType.get(key).contains(elementName)) {
+                return key;
+            }
+        }
+        return RedisType.NONE;
+    }
+
+    private void initializeElementTypeTracking() {
+        this.elementsByType.put(RedisType.HASH, Sets.newHashSet());
+        this.elementsByType.put(RedisType.LIST, Sets.newHashSet());
+        this.elementsByType.put(RedisType.SET, Sets.newHashSet());
+        this.elementsByType.put(RedisType.ZSET, Sets.newHashSet());
+        this.elementsByType.put(RedisType.STRING, Sets.newHashSet());
     }
 }

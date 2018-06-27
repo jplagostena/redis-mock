@@ -6,6 +6,8 @@ import static ai.grakn.redismock.Utils.serializeObject;
 import ai.grakn.redismock.RedisBase;
 import ai.grakn.redismock.Slice;
 import ai.grakn.redismock.exception.InternalException;
+import redis.embedded.Redis;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +34,7 @@ abstract class RO_hash extends AbstractRedisOperation {
 
         Slice result = hashOp(map);
         try {
-            base().rawPut(key, serializeObject(map), -1L);
+            base().rawPut(key, serializeObject(map), -1L, RedisType.HASH);
         } catch (Exception e) {
             throw new InternalException(e.getMessage());
         }

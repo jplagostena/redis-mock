@@ -23,7 +23,7 @@ class RO_setex extends RO_set {
     }
 
     Slice response() {
-        base().rawPut(params().get(0), params().get(2), valueToSet(params()));
+        base().rawPut(params().get(0), params().get(2), valueToSet(params()), RedisType.STRING);
         return Response.OK;
     }
 }

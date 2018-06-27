@@ -163,6 +163,8 @@ public class RedisOperationExecutor {
                 return new RO_hsetnx(base, params);
             case "hvals":
                 return new RO_hvals(base, params);
+            case "type":
+                return new RO_type(base, params);
             default:
                 throw new UnsupportedOperationException(String.format("Unsupported operation '%s'", name));
         }

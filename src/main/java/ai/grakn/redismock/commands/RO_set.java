@@ -20,7 +20,7 @@ class RO_set extends AbstractRedisOperation {
     }
 
     Slice response() {
-        base().rawPut(params().get(0), params().get(1), valueToSet(params()));
+        base().rawPut(params().get(0), params().get(1), valueToSet(params()), RedisType.STRING);
         return Response.OK;
     }
 }

@@ -13,7 +13,7 @@ class RO_getset extends AbstractRedisOperation {
 
     Slice response() {
         Slice value = base().rawGet(params().get(0));
-        base().rawPut(params().get(0), params().get(1), -1L);
+        base().rawPut(params().get(0), params().get(1), -1L, RedisType.STRING);
         return Response.bulkString(value);
     }
 }

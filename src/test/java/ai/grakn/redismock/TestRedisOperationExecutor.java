@@ -1,6 +1,7 @@
 package ai.grakn.redismock;
 
 import ai.grakn.redismock.commands.RedisOperationExecutor;
+import ai.grakn.redismock.commands.RedisType;
 import ai.grakn.redismock.exception.EOFException;
 import ai.grakn.redismock.exception.ParseErrorException;
 import org.junit.Assert;
@@ -473,5 +474,14 @@ public class TestRedisOperationExecutor {
                 executor.execCommand(RedisCommandParser.parse(array("sinter", "set1", "set2"))).toString());
 
         assertEmptyListOrSet(array("sinter", "set1", "set3"));
+    }
+
+    @Test
+    public void testType() throws Exception {
+        assertCommandEquals(RedisType.NONE.getName(), array("type", "set"));
+        assertCommandEquals(1, array("sadd", "set", "a"));
+        assertCommandEquals(RedisType.SET.getName(), array("type", "set"));
+        assertCommandEquals(1, array("del", "set"));
+        assertCommandEquals(RedisType.NONE.getName(), array("type", "set"));
     }
 }

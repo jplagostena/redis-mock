@@ -13,7 +13,7 @@ class RO_setnx extends AbstractRedisOperation {
 
     Slice response(){
         if (base().rawGet(params().get(0)) == null) {
-            base().rawPut(params().get(0), params().get(1), -1L);
+            base().rawPut(params().get(0), params().get(1), -1L, RedisType.STRING);
             return Response.integer(1);
         }
         return Response.integer(0);

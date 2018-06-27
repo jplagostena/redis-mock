@@ -39,9 +39,9 @@ class RO_pfadd extends AbstractRedisOperation {
 
         Slice out = serializeObject(set);
         if (first) {
-            base().rawPut(key, out, -1L);
+            base().rawPut(key, out, -1L, RedisType.STRING);
         } else {
-            base().rawPut(key, out, null);
+            base().rawPut(key, out, null, RedisType.STRING);
         }
 
         if (prev != set.size()) {
