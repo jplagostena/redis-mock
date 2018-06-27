@@ -4,12 +4,7 @@ import ai.grakn.redismock.commands.RedisType;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -99,10 +94,10 @@ public class RedisBase {
      * Tracks the element before the raw put.
      * It is useful to track which type is each element
      *
-     * @param key
-     * @param value
-     * @param ttl
-     * @param type
+     * @param key key to store
+     * @param value value to store in the base
+     * @param ttl time to live
+     * @param type the {@link RedisType} of the value to be stored
      */
     public void rawPut(Slice key, Slice value, Long ttl, RedisType type) {
         this.trackElement(key, type);
@@ -181,11 +176,12 @@ public class RedisBase {
     }
 
     /**
-     * Tracks the creation or removal
-     * @param elementName
-     * @param type
+     * Tracks the creation of an element
+     *
+     * @param elementName key of the element
+     * @param type one of the {@link RedisType}
      */
-    public void trackElement(Slice elementName, RedisType type) {
+    private void trackElement(Slice elementName, RedisType type) {
         if (elementsByType.isEmpty()) {
             this.initializeElementTypeTracking();
         }
@@ -193,7 +189,7 @@ public class RedisBase {
         elementSet.add(elementName);
     }
 
-    public void unTrackElement(Slice elementName) {
+    private void unTrackElement(Slice elementName) {
         if (elementsByType.isEmpty()) {
             this.initializeElementTypeTracking();
         }
@@ -205,10 +201,10 @@ public class RedisBase {
     }
 
     public RedisType getElementType(Slice elementName) {
-        Set<RedisType> keys = elementsByType.keySet();
-        for (RedisType key: keys) {
-            if (this.elementsByType.get(key).contains(elementName)) {
-                return key;
+        Set<Map.Entry<RedisType, Set<Slice>>> entries = elementsByType.entrySet();
+        for (Map.Entry<RedisType, Set<Slice>> entry: entries) {
+            if (entry.getValue().contains(elementName)) {
+                return entry.getKey();
             }
         }
         return RedisType.NONE;
